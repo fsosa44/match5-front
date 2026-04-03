@@ -1,99 +1,110 @@
-import * as React from "react";
-import { colors } from "../constants/colors";
+import React from "react";
 import Button from "../components/atoms/button/Button";
-import { FiArrowLeft } from "react-icons/fi";
-import BottomNav from "../components/atoms/navigation/BottomNav";
+import Layout from "../components/layout/Layout";
+import BackButton from "../components/atoms/back-button/BackButton";
+import GameCard from "../components/atoms/game-card/GameCard";
 import { useNavigate } from "react-router-dom";
+import { useMatches } from "../context/MatchesContext";
 
 const Home = () => {
   const navigate = useNavigate();
+  const { matches, getPendingRating } = useMatches();
+  const pendingMatch = getPendingRating();
+
   return (
-    <>
-      <div className="min-h-screen flex flex-col items-center " style={{ backgroundColor: colors.primaryBg }}>
-        <div className="w-full flex justify-start mt-4 mb-2 px-4">
-          <div
-            className="rounded-full p-2"
-            style={{ backgroundColor: colors.secondaryBg, display: "inline-flex" }}
-          >
-           
-            {FiArrowLeft({ size: 28, color: "#fff" })}
-          </div>
-        </div>
-        <div
-          className="flex flex-row items-center justify-center rounded-2xl px-0 py-4 mt-8 mx-auto"
-          style={{
-            backgroundColor: colors.secondaryBg,
-            width: "350px",
-            height: "120px",
-          }}
-        >
-          <img src="/f5LogoCuted.png" alt="Logo" className="w-auto h-24 mb-1" />
-          <div className="flex flex-col items-start ml-4">
-            <div className="text-3xl font-bold" style={{ color: colors.textLight }}>
-              Match 5
-            </div>
-            <div className="text-lg font-semibold" style={{ color: colors.alternateText }}>
-              Encuentra partidos
-            </div>
-          </div>
-        </div>
-        <div className="mt-8 w-[350px]">
-          <Button onClick={() => navigate("/create-game")}>Crear partido</Button>
+    <Layout>
+      <div className="flex flex-col items-center px-4">
+        {/* Back button */}
+        <div className="mb-2 mt-4 flex w-full max-w-sm justify-start">
+          <BackButton />
         </div>
 
-        {/* Título sección 1 */}
-        <div className="w-[350px] mt-8">
-          <h2 className="text-2        npm install react-icons
-          npm install --save-dev @types/react-iconsxl font-bold mb-2 text-left" style={{ color: colors.textLight }}>
+        {/* Pending rating banner */}
+        {pendingMatch && (
+          <div
+            onClick={() => navigate(`/rate/${pendingMatch.id}`)}
+            className="mt-2 w-full max-w-sm cursor-pointer overflow-hidden rounded-2xl bg-gradient-to-r from-yellow-500/20 to-accent/20 p-4 transition-all duration-200 active:scale-[0.98]"
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">⭐</span>
+              <div className="flex-1">
+                <p className="text-sm font-bold text-text-light">
+                  Calificá a tus compañeros
+                </p>
+                <p className="text-xs text-text-light/60">
+                  {pendingMatch.location} · {pendingMatch.date}
+                </p>
+              </div>
+              <span className="text-lg text-text-light/40">›</span>
+            </div>
+          </div>
+        )}
+
+        {/* Hero card */}
+        <div className="mt-6 flex w-full max-w-sm items-center gap-4 rounded-2xl bg-secondary px-6 py-5">
+          <img
+            src="/f5LogoCuted.png"
+            alt="Match 5 Logo"
+            className="h-20 w-auto"
+          />
+          <div>
+            <h1 className="text-3xl font-bold text-text-light">Match 5</h1>
+            <p className="text-base font-medium text-alternate">
+              Encuentra partidos
+            </p>
+          </div>
+        </div>
+
+        {/* CTA */}
+        <div className="mt-8 w-full max-w-sm">
+          <Button onClick={() => navigate("/create-game")}>
+            Crear partido
+          </Button>
+        </div>
+
+        {/* Próximos juegos */}
+        <section className="mt-10 w-full max-w-sm">
+          <h2 className="mb-3 text-xl font-bold text-text-light">
             Próximos juegos
           </h2>
-          <div
-            className="flex flex-col items-center justify-center rounded-2xl px-0 py-4 mx-auto"
-            style={{
-              backgroundColor: colors.inputBg,
-              width: "350px",
-              height: "100px",
-            }}
-          >
-            <h1 className="text-2xl font-bold" style={{ color: "#fff" }}>
-              18:00 hs
-            </h1>
-            <span className="text-lg" style={{ color: "#fff" }}>
-              Parque Central
-            </span>
-            <span className="text-lg font-semibold" style={{ color: colors.alternateText }}>
-              5/10 jugadores
-            </span>
+          <div className="flex flex-col gap-3">
+            {matches.slice(0, 1).map((match) => (
+              <GameCard
+                key={match.id}
+                id={match.id}
+                time={match.time}
+                location={match.location}
+                currentPlayers={match.players.filter(Boolean).length}
+                maxPlayers={match.maxPlayers}
+                ageLabel={match.ageRange ? `${match.ageRange.label} (${match.ageRange.min}-${match.ageRange.max})` : "Libre"}
+                intensity={match.intensity}
+              />
+            ))}
           </div>
-        </div>
+        </section>
 
-        {/* Título sección 2 */}
-        <div className="w-[350px] mt-4">
-          <h2 className="text-2xl font-bold mb-2 text-left" style={{ color: colors.textLight }}>
+        {/* Juegos cercanos */}
+        <section className="mt-8 w-full max-w-sm">
+          <h2 className="mb-3 text-xl font-bold text-text-light">
             Juegos cercanos
           </h2>
-          <div
-            className="flex flex-col items-center justify-center rounded-2xl px-0 py-4 mx-auto"
-            style={{
-              backgroundColor: colors.inputBg,
-              width: "350px",
-              height: "100px",
-            }}
-          >
-            <h1 className="text-2xl font-bold" style={{ color: "#fff" }}>
-              20:30 hs
-            </h1>
-            <span className="text-lg" style={{ color: "#fff" }}>
-              Cancha Sur
-            </span>
-            <span className="text-lg font-semibold" style={{ color: colors.alternateText }}>
-              7/12 jugadores
-            </span>
+          <div className="flex flex-col gap-3">
+            {matches.slice(1).map((match) => (
+              <GameCard
+                key={match.id}
+                id={match.id}
+                time={match.time}
+                location={match.location}
+                currentPlayers={match.players.filter(Boolean).length}
+                maxPlayers={match.maxPlayers}
+                ageLabel={match.ageRange ? `${match.ageRange.label} (${match.ageRange.min}-${match.ageRange.max})` : "Libre"}
+                intensity={match.intensity}
+              />
+            ))}
           </div>
-        </div>
+        </section>
       </div>
-      <BottomNav />
-    </>
+    </Layout>
   );
 };
 

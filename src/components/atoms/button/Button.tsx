@@ -1,29 +1,12 @@
 import React from "react";
-import { colors } from "../../../constants/colors";
 
 export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement>;
 
 const Button: React.FC<ButtonProps> = (props) => {
   return (
     <button
-      className="text-2xl rounded-3xl px-4 py-4 font-bold w-full transition-colors"
-      style={{
-        backgroundColor: colors.accent,
-        color: colors.buttonText,
-      }}
+      className="w-full rounded-2xl bg-accent px-6 py-4 text-xl font-semibold text-button-text transition-all duration-200 hover:bg-accent-light active:scale-[0.98] active:bg-accent-light focus:outline-none focus:ring-2 focus:ring-accent-light focus:ring-offset-2 focus:ring-offset-primary"
       {...props}
-      onMouseDown={(e) => {
-        e.currentTarget.style.backgroundColor = colors.accentLight;
-        if (props.onMouseDown) props.onMouseDown(e);
-      }}
-      onMouseUp={(e) => {
-        e.currentTarget.style.backgroundColor = colors.accent;
-        if (props.onMouseUp) props.onMouseUp(e);
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.backgroundColor = colors.accent;
-        if (props.onMouseLeave) props.onMouseLeave(e);
-      }}
     >
       {props.children}
     </button>
