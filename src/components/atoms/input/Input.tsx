@@ -1,17 +1,11 @@
 import React from "react";
-import { colors } from "../../../constants/colors";
 
 type InputProps = React.InputHTMLAttributes<HTMLInputElement>;
 
 const Input: React.FC<InputProps> = (props) => {
   return (
     <input
-      className="text-lg rounded-3xl px-4 py-4 outline-none w-full placeholder-[#7ac34a]"
-      style={{
-        backgroundColor: colors.inputBg,
-        color: colors.accent,
-      }}
-      placeholder={props.placeholder}
+      className="w-full rounded-2xl bg-input px-5 py-4 text-base text-accent outline-none placeholder:text-accent/50 transition-all duration-200 focus:ring-2 focus:ring-accent/30"
       {...props}
     />
   );
