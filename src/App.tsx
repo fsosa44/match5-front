@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Register from "./screens/Register";
 import Login from "./screens/Login";
 import Home from "./screens/Home";
@@ -15,6 +15,12 @@ import RateMatch from "./screens/RateMatch";
 import EditProfile from "./screens/EditProfile";
 import { MatchesProvider } from "./context/MatchesContext";
 
+const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
+  const token = localStorage.getItem("token");
+  if (!token) return <Navigate to="/register" replace />;
+  return <>{children}</>;
+};
+
 const App = () => {
   return (
     <MatchesProvider>
@@ -22,18 +28,18 @@ const App = () => {
       <Routes>
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/" element={<Home />} />
-        <Route path="/create-game" element={<CreateGame />} />
-        <Route path="/match/:id" element={<MatchDetail />} />
-        <Route path="/player/:playerId" element={<PlayerProfile />} />
-        <Route path="/map" element={<MapScreen />} />
-        <Route path="/profile" element={<MyProfile />} />
-        <Route path="/edit-profile" element={<EditProfile />} />
-        <Route path="/chat" element={<ChatList />} />
-        <Route path="/chat/:matchId" element={<ChatRoom />} />
-        <Route path="/private-chat/:conversationId" element={<PrivateChatRoom />} />
-        <Route path="/history" element={<MatchHistory />} />
-        <Route path="/rate/:matchId" element={<RateMatch />} />
+        <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
+        <Route path="/create-game" element={<PrivateRoute><CreateGame /></PrivateRoute>} />
+        <Route path="/match/:id" element={<PrivateRoute><MatchDetail /></PrivateRoute>} />
+        <Route path="/player/:playerId" element={<PrivateRoute><PlayerProfile /></PrivateRoute>} />
+        <Route path="/map" element={<PrivateRoute><MapScreen /></PrivateRoute>} />
+        <Route path="/profile" element={<PrivateRoute><MyProfile /></PrivateRoute>} />
+        <Route path="/edit-profile" element={<PrivateRoute><EditProfile /></PrivateRoute>} />
+        <Route path="/chat" element={<PrivateRoute><ChatList /></PrivateRoute>} />
+        <Route path="/chat/:matchId" element={<PrivateRoute><ChatRoom /></PrivateRoute>} />
+        <Route path="/private-chat/:conversationId" element={<PrivateRoute><PrivateChatRoom /></PrivateRoute>} />
+        <Route path="/history" element={<PrivateRoute><MatchHistory /></PrivateRoute>} />
+        <Route path="/rate/:matchId" element={<PrivateRoute><RateMatch /></PrivateRoute>} />
       </Routes>
       </Router>
     </MatchesProvider>
