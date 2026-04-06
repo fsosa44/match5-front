@@ -1,12 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "../components/layout/Layout";
 import BackButton from "../components/atoms/back-button/BackButton";
 import Input from "../components/atoms/input/Input";
 import Button from "../components/atoms/button/Button";
-import { currentUser } from "../data/mockCurrentUser";
-import { updateProfile } from "../api/users";
+import { useUserStore } from "../stores/userStore";
 import { PlayStyle } from "../types/match";
+import { FiCamera } from "react-icons/fi";
+
+const API_BASE = (process.env.REACT_APP_API_URL || "http://localhost:5000/api").replace("/api", "");
 
 const POSITIONS = ["Arquero", "Defensor", "Mediocampista", "Delantero"];
 
@@ -18,15 +20,31 @@ const PLAY_STYLES: { value: PlayStyle; emoji: string; label: string }[] = [
 
 const EditProfile = () => {
   const navigate = useNavigate();
+  const user = useUserStore((s) => s.user);
+  const updateUser = useUserStore((s) => s.updateUser);
+  const uploadPhoto = useUserStore((s) => s.uploadPhoto);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [name, setName] = useState(currentUser.name);
-  const [phone, setPhone] = useState(currentUser.phone);
-  const [location, setLocation] = useState(currentUser.location);
-  const [position, setPosition] = useState(currentUser.position);
-  const [playStyle, setPlayStyle] = useState<PlayStyle>(currentUser.playStyle);
+  const [name, setName] = useState(user?.name || "");
+  const [lastName, setLastName] = useState(user?.lastName || "");
+  const [phone, setPhone] = useState(user?.phone || "");
+  const [location, setLocation] = useState(user?.location || "");
+  const [position, setPosition] = useState(user?.position || "Mediocampista");
+  const [playStyle, setPlayStyle] = useState<PlayStyle>((user?.playStyle as PlayStyle) || "flexible");
+  const [photoPreview, setPhotoPreview] = useState<string | null>(
+    user?.profilePhoto ? `${API_BASE}${user.profilePhoto}` : null
+  );
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPhotoFile(file);
+    setPhotoPreview(URL.createObjectURL(file));
+  };
 
   const handleSave = async () => {
     setError("");
@@ -34,23 +52,27 @@ const EditProfile = () => {
       setError("El nombre es requerido");
       return;
     }
+    if (!lastName.trim()) {
+      setError("El apellido es requerido");
+      return;
+    }
 
     try {
       setLoading(true);
-      const updated = await updateProfile({
+
+      // Upload photo first if changed
+      if (photoFile) {
+        await uploadPhoto(photoFile);
+      }
+
+      await updateUser({
         name: name.trim(),
+        lastName: lastName.trim(),
         phone: phone.trim(),
         position,
         playStyle,
         location: location.trim(),
       });
-
-      // Actualizar datos locales
-      currentUser.name = updated.name;
-      currentUser.phone = updated.phone || currentUser.phone;
-      currentUser.position = updated.position;
-      currentUser.playStyle = updated.playStyle as PlayStyle;
-      currentUser.location = updated.location || currentUser.location;
 
       setSuccess(true);
       setTimeout(() => navigate("/profile"), 1200);
@@ -60,6 +82,8 @@ const EditProfile = () => {
       setLoading(false);
     }
   };
+
+  const initials = `${name?.[0] || ""}${lastName?.[0] || ""}`.toUpperCase();
 
   return (
     <Layout>
@@ -73,6 +97,39 @@ const EditProfile = () => {
           Editar perfil
         </h1>
 
+        {/* Profile photo */}
+        <div className="mt-6 flex flex-col items-center">
+          <div
+            onClick={() => fileInputRef.current?.click()}
+            className="relative cursor-pointer"
+          >
+            {photoPreview ? (
+              <img
+                src={photoPreview}
+                alt="Foto de perfil"
+                className="h-24 w-24 rounded-full border-2 border-primary object-cover"
+              />
+            ) : (
+              <div className="flex h-24 w-24 items-center justify-center rounded-full border-2 border-primary bg-surface-container-high text-3xl font-bold text-primary">
+                {initials}
+              </div>
+            )}
+            <div className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full bg-accent text-button-text shadow-lg">
+              <FiCamera size={14} />
+            </div>
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            onChange={handlePhotoChange}
+            className="hidden"
+          />
+          <p className="mt-2 text-xs text-text-light/40">
+            Tocá para cambiar la foto
+          </p>
+        </div>
+
         {/* Form */}
         <div className="mt-6 flex w-full max-w-sm flex-col gap-3">
           <Input
@@ -80,6 +137,12 @@ const EditProfile = () => {
             placeholder="Nombre"
             value={name}
             onChange={(e) => setName(e.target.value)}
+          />
+          <Input
+            type="text"
+            placeholder="Apellido"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
           />
           <Input
             type="tel"

@@ -12,7 +12,7 @@ const Layout: React.FC<LayoutProps> = ({ children, noPadding, hideNav }) => {
   const location = useLocation();
 
   return (
-    <div className="min-h-screen bg-primary">
+    <div className="min-h-screen bg-background">
       <main
         key={location.pathname}
         className={noPadding ? "" : hideNav ? "" : "pb-20"}

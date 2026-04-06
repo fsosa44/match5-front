@@ -69,14 +69,14 @@ const MatchPopup = ({ match }: MatchPopupProps) => {
       {/* Footer */}
       <div className="flex items-center justify-between border-t border-gray-200 pt-2.5">
         <div className="flex items-center gap-1.5">
-          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-accent">
+          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-background text-[10px] font-bold text-primary">
             M5
           </div>
           <span className="text-xs text-gray-500">Match 5</span>
         </div>
         <button
           onClick={() => navigate(`/match/${match.id}`)}
-          className="rounded-full bg-primary px-4 py-1.5 text-xs font-semibold text-accent transition-colors hover:bg-secondary"
+          className="rounded-full bg-background px-4 py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-surface-container-high"
         >
           Ver detalle
         </button>

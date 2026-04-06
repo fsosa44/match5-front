@@ -4,8 +4,12 @@
 
 @layer base {
   body {
-    @apply bg-primary text-text-light antialiased;
-    font-family: "Poppins", system-ui, sans-serif;
+    @apply bg-background text-on-surface antialiased;
+    font-family: "Be Vietnam Pro", system-ui, sans-serif;
+  }
+
+  h1, h2, h3 {
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
   }
 
   * {
@@ -27,7 +31,7 @@
 
 .leaflet-popup-content {
   margin: 14px 16px !important;
-  font-family: "Poppins", system-ui, sans-serif !important;
+  font-family: "Be Vietnam Pro", system-ui, sans-serif !important;
 }
 
 .leaflet-popup-tip {

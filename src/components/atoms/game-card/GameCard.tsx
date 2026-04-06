@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { FiZap, FiHeart, FiUsers } from "react-icons/fi";
+import { MdSportsSoccer } from "react-icons/md";
 
 type Intensity = "recreational" | "competitive" | "flexible";
 
@@ -30,6 +31,7 @@ interface GameCardProps {
   maxPlayers: number;
   ageLabel?: string;
   intensity?: Intensity;
+  variant?: "featured" | "compact";
 }
 
 const GameCard: React.FC<GameCardProps> = ({
@@ -40,52 +42,110 @@ const GameCard: React.FC<GameCardProps> = ({
   maxPlayers,
   ageLabel,
   intensity,
+  variant = "featured",
 }) => {
   const navigate = useNavigate();
   const progress = (currentPlayers / maxPlayers) * 100;
   const isFull = currentPlayers >= maxPlayers;
   const intensityCfg = intensity ? INTENSITY_CONFIG[intensity] : null;
 
+  if (variant === "compact") {
+    return (
+      <div
+        onClick={() => navigate(`/match/${id}`)}
+        className="cursor-pointer rounded-2xl bg-surface-container-high p-4 transition-all duration-200 active:scale-[0.98]"
+      >
+        <div className="flex items-center gap-4">
+          {/* Icon square */}
+          <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-surface-container-highest">
+            <MdSportsSoccer size={22} className="text-primary" />
+          </div>
+
+          {/* Info */}
+          <div className="flex-1 min-w-0">
+            <h3 className="text-base font-bold text-on-surface">{time}</h3>
+            <p className="mt-0.5 truncate text-xs text-on-surface-variant">{location}</p>
+          </div>
+
+          {/* Spots + mini progress */}
+          <div className="flex flex-col items-end gap-1.5">
+            <span className={`text-sm font-bold ${isFull ? "text-error" : "text-primary"}`}>
+              {currentPlayers}/{maxPlayers}
+            </span>
+            <div className="h-1 w-12 overflow-hidden rounded-full bg-outline-variant/40">
+              <div
+                className={`h-full rounded-full ${isFull ? "bg-error" : "bg-primary"}`}
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Tags */}
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          {intensityCfg && (
+            <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold ${intensityCfg.color}`}>
+              {intensityCfg.icon}
+              {intensityCfg.label}
+            </span>
+          )}
+          {ageLabel && (
+            <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
+              {ageLabel}
+            </span>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Featured variant (default)
   return (
     <div
       onClick={() => navigate(`/match/${id}`)}
-      className="cursor-pointer rounded-2xl bg-input p-5 transition-all duration-200 hover:bg-input/80 active:scale-[0.98]">
-      <div className="flex items-center justify-between">
+      className="cursor-pointer rounded-2xl bg-surface-container-high p-5 transition-all duration-200 active:scale-[0.98]"
+    >
+      {/* Time + spots */}
+      <div className="flex items-start justify-between">
         <div>
-          <h3 className="text-xl font-bold text-white">{time}</h3>
-          <p className="mt-0.5 text-sm text-text-light/70">{location}</p>
+          <h3 className="font-headline text-2xl font-extrabold tracking-tight text-primary">
+            {time}
+          </h3>
+          <p className="mt-1 text-sm text-on-surface-variant">{location}</p>
         </div>
-        <span
-          className={`text-sm font-semibold ${
-            isFull ? "text-red-400" : "text-alternate"
-          }`}
-        >
-          {currentPlayers}/{maxPlayers}
-        </span>
+        <div className="flex flex-col items-end">
+          <span className={`text-xl font-bold ${isFull ? "text-error" : "text-primary"}`}>
+            {currentPlayers}/{maxPlayers}
+          </span>
+          <span className="text-[10px] font-semibold uppercase tracking-widest text-on-surface-variant/50">
+            lugares
+          </span>
+        </div>
       </div>
 
-      {/* Tags row */}
-      <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+      {/* Progress bar with glow */}
+      <div className="mt-3 h-1 w-full overflow-hidden rounded-full bg-outline-variant/40">
+        <div
+          className={`h-full rounded-full transition-all duration-500 ${
+            isFull ? "bg-error" : "bg-primary shadow-[0_0_8px_rgba(175,253,124,0.4)]"
+          }`}
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+
+      {/* Tags */}
+      <div className="mt-3 flex flex-wrap items-center gap-2">
         {intensityCfg && (
-          <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${intensityCfg.color}`}>
+          <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold ${intensityCfg.color}`}>
             {intensityCfg.icon}
             {intensityCfg.label}
           </span>
         )}
         {ageLabel && (
-          <span className="inline-flex items-center rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-semibold text-accent">
+          <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
             {ageLabel}
           </span>
         )}
-      </div>
-
-      <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-primary/50">
-        <div
-          className={`h-full rounded-full transition-all duration-500 ${
-            isFull ? "bg-red-400" : "bg-accent"
-          }`}
-          style={{ width: `${progress}%` }}
-        />
       </div>
     </div>
   );

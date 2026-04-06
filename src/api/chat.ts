@@ -3,7 +3,7 @@ import { api } from "./client";
 export interface ChatMessage {
   _id: string;
   match: string;
-  sender: { _id: string; name: string };
+  sender: { _id: string; name: string; profilePhoto?: string | null };
   text: string;
   createdAt: string;
 }

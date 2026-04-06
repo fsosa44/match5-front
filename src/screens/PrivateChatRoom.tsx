@@ -3,39 +3,49 @@ import { useParams } from "react-router-dom";
 import Layout from "../components/layout/Layout";
 import BackButton from "../components/atoms/back-button/BackButton";
 import { IoSend } from "react-icons/io5";
-import { getPrivateMessages, PrivateMessage } from "../api/conversations";
+import { getPrivateMessages, getConversationById, PrivateMessage, ConversationParticipant } from "../api/conversations";
 import {
   connectSocket,
   joinConversationRoom,
   leaveConversationRoom,
   sendPrivateMessage,
 } from "../services/socket";
+import { useChatStore } from "../stores/chatStore";
+
+const API_BASE = (process.env.REACT_APP_API_URL || "http://localhost:5000/api").replace("/api", "");
 
 const PrivateChatRoom = () => {
   const { conversationId } = useParams<{ conversationId: string }>();
   const [messages, setMessages] = useState<PrivateMessage[]>([]);
+  const [otherUser, setOtherUser] = useState<ConversationParticipant | null>(null);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(true);
   const bottomRef = useRef<HTMLDivElement>(null);
   const currentUserId = localStorage.getItem("userId");
 
-  // Get the other participant's name from the first message or URL state
-  const otherName = messages.find((m) => m.sender._id !== currentUserId)?.sender.name ?? "Chat privado";
+  const setActiveChatId = useChatStore((s) => s.setActiveChatId);
 
   useEffect(() => {
     if (!conversationId) return;
 
-    const loadMessages = async () => {
+    setActiveChatId(conversationId);
+
+    const loadData = async () => {
       try {
-        const data = await getPrivateMessages(conversationId);
-        setMessages(data);
+        const [msgs, conv] = await Promise.all([
+          getPrivateMessages(conversationId),
+          getConversationById(conversationId),
+        ]);
+        setMessages(msgs);
+        const other = conv.participants.find((p) => p._id !== currentUserId);
+        if (other) setOtherUser(other);
       } catch (err) {
-        console.error("Error cargando mensajes:", err);
+        console.error("Error cargando datos:", err);
       } finally {
         setLoading(false);
       }
     };
-    loadMessages();
+    loadData();
 
     const socket = connectSocket();
     joinConversationRoom(conversationId);
@@ -49,6 +59,7 @@ const PrivateChatRoom = () => {
     return () => {
       socket.off("message:private", handleNewMessage);
       leaveConversationRoom(conversationId);
+      setActiveChatId(null);
     };
   }, [conversationId]);
 
@@ -77,10 +88,18 @@ const PrivateChatRoom = () => {
         <div className="flex items-center gap-3 border-b border-white/5 px-4 pb-3 pt-4">
           <BackButton />
           <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent/20 text-xs font-bold text-accent">
-              {getInitials(otherName)}
-            </div>
-            <h2 className="text-sm font-bold text-text-light">{otherName}</h2>
+            {otherUser?.profilePhoto ? (
+              <img
+                src={`${API_BASE}${otherUser.profilePhoto}`}
+                alt={otherUser.name}
+                className="h-9 w-9 rounded-full object-cover"
+              />
+            ) : (
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/20 text-xs font-bold text-primary">
+                {getInitials(otherUser?.name ?? "?")}
+              </div>
+            )}
+            <h2 className="text-sm font-bold text-on-surface">{otherUser?.name ?? "Chat privado"}</h2>
           </div>
         </div>
 
@@ -105,9 +124,17 @@ const PrivateChatRoom = () => {
                     key={msg._id}
                     className={`flex items-end gap-1.5 ${isMe ? "flex-row-reverse" : "flex-row"}`}
                   >
-                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-secondary text-[9px] font-bold text-accent">
-                      {getInitials(msg.sender.name)}
-                    </div>
+                    {msg.sender.profilePhoto ? (
+                      <img
+                        src={`${API_BASE}${msg.sender.profilePhoto}`}
+                        alt={msg.sender.name}
+                        className="h-7 w-7 shrink-0 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-surface-container-high text-[9px] font-bold text-primary">
+                        {getInitials(msg.sender.name)}
+                      </div>
+                    )}
                     <div
                       className={`flex max-w-[75%] flex-col ${isMe ? "items-end" : "items-start"}`}
                     >
@@ -115,7 +142,7 @@ const PrivateChatRoom = () => {
                         className={`rounded-2xl px-3.5 py-2 ${
                           isMe
                             ? "rounded-br-md bg-accent text-button-text"
-                            : "rounded-bl-md bg-secondary text-text-light"
+                            : "rounded-bl-md bg-surface-container-high text-on-surface"
                         }`}
                       >
                         <p className="text-sm leading-relaxed">{msg.text}</p>

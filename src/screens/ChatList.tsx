@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "../components/layout/Layout";
-import { useMatches } from "../context/MatchesContext";
+import { useMatchesStore } from "../stores/matchesStore";
 import { getConversations, getOrCreateConversation, Conversation } from "../api/conversations";
 import { searchUsers, SearchUser } from "../api/users";
 import { IoSearch, IoClose } from "react-icons/io5";
@@ -11,7 +11,7 @@ type Tab = "partidos" | "privados";
 
 const ChatList = () => {
   const navigate = useNavigate();
-  const { matches } = useMatches();
+  const matches = useMatchesStore((s) => s.matches);
   const [tab, setTab] = useState<Tab>("partidos");
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loadingConv, setLoadingConv] = useState(false);
@@ -97,8 +97,8 @@ const ChatList = () => {
             onClick={() => setTab("partidos")}
             className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold transition-colors ${
               tab === "partidos"
-                ? "bg-accent text-button-text"
-                : "bg-secondary text-text-light/60"
+                ? "bg-primary text-button-text"
+                : "bg-surface-container-high text-on-surface/60"
             }`}
           >
             <FiUsers size={14} />
@@ -108,8 +108,8 @@ const ChatList = () => {
             onClick={() => setTab("privados")}
             className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold transition-colors ${
               tab === "privados"
-                ? "bg-accent text-button-text"
-                : "bg-secondary text-text-light/60"
+                ? "bg-primary text-button-text"
+                : "bg-surface-container-high text-on-surface/60"
             }`}
           >
             <FiMessageCircle size={14} />
@@ -135,9 +135,9 @@ const ChatList = () => {
                   <button
                     key={match.id}
                     onClick={() => navigate(`/chat/${match.id}`)}
-                    className="flex w-full items-center gap-3 rounded-2xl bg-secondary p-4 text-left transition-colors active:bg-input"
+                    className="flex w-full items-center gap-3 rounded-2xl bg-surface-container-high p-4 text-left transition-colors active:bg-input"
                   >
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-surface-container">
                       <span className="text-xl">⚽</span>
                     </div>
                     <div className="min-w-0 flex-1">
@@ -203,7 +203,7 @@ const ChatList = () => {
                       <button
                         key={user._id}
                         onClick={() => handleStartConversation(user._id)}
-                        className="flex w-full items-center gap-3 rounded-xl bg-secondary p-3 text-left transition-colors active:bg-input"
+                        className="flex w-full items-center gap-3 rounded-xl bg-surface-container-high p-3 text-left transition-colors active:bg-input"
                       >
                         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/20 text-xs font-bold text-accent">
                           {getInitials(user.name)}
@@ -247,7 +247,7 @@ const ChatList = () => {
                         <button
                           key={conv._id}
                           onClick={() => navigate(`/private-chat/${conv._id}`)}
-                          className="flex w-full items-center gap-3 rounded-2xl bg-secondary p-4 text-left transition-colors active:bg-input"
+                          className="flex w-full items-center gap-3 rounded-2xl bg-surface-container-high p-4 text-left transition-colors active:bg-input"
                         >
                           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accent/20 text-xs font-bold text-accent">
                             {getInitials(other.name)}

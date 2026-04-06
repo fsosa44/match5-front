@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { useEffect } from "react";
 import Register from "./screens/Register";
 import Login from "./screens/Login";
 import Home from "./screens/Home";
@@ -13,7 +14,10 @@ import PrivateChatRoom from "./screens/PrivateChatRoom";
 import MatchHistory from "./screens/MatchHistory";
 import RateMatch from "./screens/RateMatch";
 import EditProfile from "./screens/EditProfile";
-import { MatchesProvider } from "./context/MatchesContext";
+import { useMatchesStore } from "./stores/matchesStore";
+import { useUserStore } from "./stores/userStore";
+import { useChatStore } from "./stores/chatStore";
+import { connectSocket, disconnectSocket, getSocket } from "./services/socket";
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const token = localStorage.getItem("token");
@@ -22,9 +26,38 @@ const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const App = () => {
+  const fetchAll = useMatchesStore((s) => s.fetchAll);
+  const fetchUser = useUserStore((s) => s.fetchUser);
+  const addUnread = useChatStore((s) => s.addUnread);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      fetchAll();
+      fetchUser();
+    }
+  }, [fetchAll, fetchUser]);
+
+  // Global socket for notifications
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const socket = connectSocket();
+
+    const handleNotification = ({ chatId }: { type: string; chatId: string }) => {
+      addUnread(chatId);
+    };
+
+    socket.on("notification:message", handleNotification);
+
+    return () => {
+      socket.off("notification:message", handleNotification);
+    };
+  }, [addUnread]);
+
   return (
-    <MatchesProvider>
-      <Router>
+    <Router>
       <Routes>
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
@@ -41,8 +74,7 @@ const App = () => {
         <Route path="/history" element={<PrivateRoute><MatchHistory /></PrivateRoute>} />
         <Route path="/rate/:matchId" element={<PrivateRoute><RateMatch /></PrivateRoute>} />
       </Routes>
-      </Router>
-    </MatchesProvider>
+    </Router>
   );
 };
 
