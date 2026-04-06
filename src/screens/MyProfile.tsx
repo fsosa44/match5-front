@@ -51,7 +51,10 @@ const MyProfile = () => {
             <div className="flex h-24 w-24 items-center justify-center rounded-full border-2 border-accent bg-secondary text-3xl font-bold text-accent">
               {initials}
             </div>
-            <button className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full bg-accent text-button-text shadow-lg transition-transform active:scale-90">
+            <button
+              onClick={() => navigate("/edit-profile")}
+              className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full bg-accent text-button-text shadow-lg transition-transform active:scale-90"
+            >
               <FiEdit2 size={14} />
             </button>
           </div>

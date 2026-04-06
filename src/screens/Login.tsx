@@ -2,41 +2,29 @@ import React, { useState } from "react";
 import Input from "../components/atoms/input/Input";
 import Button from "../components/atoms/button/Button";
 import { useNavigate } from "react-router-dom";
-import { registerUser } from "../api/auth";
+import { loginUser } from "../api/auth";
 
-const Register = () => {
+const Login = () => {
   const navigate = useNavigate();
-  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleRegister = async () => {
+  const handleLogin = async () => {
     setError("");
 
-    if (!name.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
+    if (!email.trim() || !password.trim()) {
       setError("Completá todos los campos");
-      return;
-    }
-
-    if (password.length < 6) {
-      setError("La contraseña debe tener al menos 6 caracteres");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError("Las contraseñas no coinciden");
       return;
     }
 
     try {
       setLoading(true);
-      await registerUser({ name: name.trim(), email: email.trim(), password });
+      await loginUser({ email: email.trim(), password });
       navigate("/");
     } catch (err: any) {
-      setError(err.message || "Error al crear la cuenta");
+      setError(err.message || "Email o contraseña incorrectos");
     } finally {
       setLoading(false);
     }
@@ -52,17 +40,11 @@ const Register = () => {
 
         {/* Title */}
         <h1 className="mb-10 mt-2 text-center text-5xl font-bold text-text-light">
-          Registro
+          Ingresar
         </h1>
 
         {/* Form */}
         <div className="flex flex-col gap-3">
-          <Input
-            type="text"
-            placeholder="Nombre"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
           <Input
             type="email"
             placeholder="Email"
@@ -74,12 +56,7 @@ const Register = () => {
             placeholder="Contraseña"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-          />
-          <Input
-            type="password"
-            placeholder="Confirmar contraseña"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleLogin()}
           />
         </div>
 
@@ -88,21 +65,21 @@ const Register = () => {
         )}
 
         <div className="mt-6">
-          <Button onClick={handleRegister} disabled={loading}>
-            {loading ? "Creando cuenta..." : "Crear Cuenta"}
+          <Button onClick={handleLogin} disabled={loading}>
+            {loading ? "Ingresando..." : "Ingresar"}
           </Button>
         </div>
 
-        {/* Login link */}
+        {/* Register link */}
         <div className="mt-6 flex flex-col items-center gap-1">
           <span className="text-base text-accent/70">
-            ¿Ya tenés una cuenta?
+            ¿No tenés cuenta?
           </span>
           <button
-            onClick={() => navigate("/login")}
+            onClick={() => navigate("/register")}
             className="text-lg font-semibold text-accent transition-colors hover:text-accent-light"
           >
-            Ingresar
+            Crear cuenta
           </button>
         </div>
       </div>
@@ -110,4 +87,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default Login;

@@ -6,6 +6,7 @@ import Input from "../components/atoms/input/Input";
 import Button from "../components/atoms/button/Button";
 import { useMatches } from "../context/MatchesContext";
 import { AgeRange, PlayStyle } from "../types/match";
+import { createMatch } from "../api/matches";
 
 const GAME_TYPES = [
   { label: "5v5", value: 10 },
@@ -47,6 +48,8 @@ const CreateGame = () => {
   const [customMin, setCustomMin] = useState("18");
   const [customMax, setCustomMax] = useState("30");
   const [selectedIntensity, setSelectedIntensity] = useState<PlayStyle>("flexible");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const getAgeRange = (): AgeRange | undefined => {
     if (customAge) {
@@ -63,34 +66,35 @@ const CreateGame = () => {
     return undefined;
   };
 
-  const canSubmit = name.trim() && location.trim() && date && time && selectedType;
+  const canSubmit = name.trim() && location.trim() && date && time && selectedType && !loading;
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     if (!canSubmit) return;
+    setError("");
 
-    const id = `new-${Date.now()}`;
-    const formattedTime = `${time} hs`;
+    try {
+      setLoading(true);
+      const formattedTime = `${time} hs`;
 
-    const today = new Date().toISOString().split("T")[0];
-    const tomorrow = new Date(Date.now() + 86400000).toISOString().split("T")[0];
-    let dateLabel = date;
-    if (date === today) dateLabel = "Hoy";
-    else if (date === tomorrow) dateLabel = "Mañana";
+      const match = await createMatch({
+        name: name.trim(),
+        location: location.trim(),
+        lat: DEFAULT_LAT + (Math.random() - 0.5) * 0.01,
+        lng: DEFAULT_LNG + (Math.random() - 0.5) * 0.01,
+        date,
+        time: formattedTime,
+        maxPlayers: selectedType!,
+        ageRange: getAgeRange(),
+        intensity: selectedIntensity,
+      });
 
-    addMatch({
-      id,
-      time: formattedTime,
-      date: dateLabel,
-      location,
-      lat: DEFAULT_LAT + (Math.random() - 0.5) * 0.01,
-      lng: DEFAULT_LNG + (Math.random() - 0.5) * 0.01,
-      maxPlayers: selectedType!,
-      players: Array(selectedType!).fill(null),
-      ageRange: getAgeRange(),
-      intensity: selectedIntensity,
-    });
-
-    navigate(`/match/${id}`);
+      addMatch(match);
+      navigate(`/match/${match.id}`);
+    } catch (err: any) {
+      setError(err.message || "Error al crear el partido");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -273,8 +277,11 @@ const CreateGame = () => {
         </div>
 
         <div className="mt-8 w-full max-w-sm pb-6">
+          {error && (
+            <p className="mb-3 text-center text-sm text-red-400">{error}</p>
+          )}
           <Button onClick={handleCreate} disabled={!canSubmit}>
-            Crear partido
+            {loading ? "Creando..." : "Crear partido"}
           </Button>
         </div>
       </div>

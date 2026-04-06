@@ -6,6 +6,7 @@ import { useMatches } from "../context/MatchesContext";
 import { FaStar, FaRegStar } from "react-icons/fa";
 import { Player } from "../types/match";
 import { motion, AnimatePresence } from "framer-motion";
+import { rateMatch as rateMatchAPI } from "../api/ratings";
 
 interface PlayerRatingState {
   rating: number;
@@ -17,9 +18,10 @@ const RateMatch = () => {
   const navigate = useNavigate();
   const { finishedMatches, rateMatch } = useMatches();
   const match = finishedMatches.find((m) => m.id === matchId);
+  const currentUserId = localStorage.getItem("userId") || "current";
 
   const allPlayers = match
-    ? [...match.teamA, ...match.teamB].filter((p) => p.id !== "current")
+    ? [...match.teamA, ...match.teamB].filter((p) => p.id !== currentUserId)
     : [];
 
   const [ratings, setRatings] = useState<Record<string, PlayerRatingState>>(
@@ -30,6 +32,7 @@ const RateMatch = () => {
   );
 
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   // Track which stars just changed for burst animation
   const [starBurst, setStarBurst] = useState<string | null>(null);
@@ -44,13 +47,13 @@ const RateMatch = () => {
     );
   }
 
-  const userTeam = match.teamA.find((p) => p.id === "current")
+  const userTeam = match.teamA.find((p) => p.id === currentUserId)
     ? "A"
     : "B";
   const userTeamPlayers =
     userTeam === "A"
-      ? match.teamA.filter((p) => p.id !== "current")
-      : match.teamB.filter((p) => p.id !== "current");
+      ? match.teamA.filter((p) => p.id !== currentUserId)
+      : match.teamB.filter((p) => p.id !== currentUserId);
   const opponentPlayers = userTeam === "A" ? match.teamB : match.teamA;
 
   const setPlayerRating = (playerId: string, rating: number) => {
@@ -71,12 +74,30 @@ const RateMatch = () => {
 
   const allRated = allPlayers.every((p) => ratings[p.id]?.rating > 0);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    if (submitting) return;
+    setSubmitting(true);
+
     const playerRatings = allPlayers.map((p) => ({
       playerId: p.id,
       rating: ratings[p.id].rating,
       comment: ratings[p.id].comment || undefined,
     }));
+
+    // Llamada al backend
+    try {
+      await rateMatchAPI(
+        match.id,
+        allPlayers.map((p) => ({
+          player: p.id,
+          rating: ratings[p.id].rating,
+          comment: ratings[p.id].comment || undefined,
+        }))
+      );
+    } catch {
+      // Si falla el backend, seguimos con el flujo local
+    }
+
     rateMatch(match.id, playerRatings);
     setSubmitted(true);
     setTimeout(() => navigate("/"), 1500);
