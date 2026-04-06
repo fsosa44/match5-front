@@ -1,7 +1,6 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import { MatchData, FinishedMatchData } from "../types/match";
-import { mockMatches } from "../data/mockMatches";
-import { mockFinishedMatches } from "../data/mockFinishedMatches";
+import { getMatches as fetchMatches, getFinishedMatches as fetchFinished } from "../api/matches";
 
 interface PlayerRating {
   playerId: string;
@@ -11,6 +10,7 @@ interface PlayerRating {
 
 interface MatchesContextType {
   matches: MatchData[];
+  loading: boolean;
   addMatch: (match: MatchData) => void;
   finishedMatches: FinishedMatchData[];
   rateMatch: (matchId: string, ratings: PlayerRating[]) => void;
@@ -22,9 +22,21 @@ const MatchesContext = createContext<MatchesContextType | undefined>(undefined);
 export const MatchesProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [matches, setMatches] = useState<MatchData[]>(mockMatches);
-  const [finishedMatches, setFinishedMatches] =
-    useState<FinishedMatchData[]>(mockFinishedMatches);
+  const [matches, setMatches] = useState<MatchData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [finishedMatches, setFinishedMatches] = useState<FinishedMatchData[]>([]);
+
+  useEffect(() => {
+    Promise.all([
+      fetchMatches().catch(() => []),
+      fetchFinished().catch(() => []),
+    ])
+      .then(([upcoming, finished]) => {
+        setMatches(upcoming);
+        setFinishedMatches(finished);
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
   const addMatch = (match: MatchData) => {
     setMatches((prev) => [match, ...prev]);
@@ -42,7 +54,7 @@ export const MatchesProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <MatchesContext.Provider
-      value={{ matches, addMatch, finishedMatches, rateMatch, getPendingRating }}
+      value={{ matches, loading, addMatch, finishedMatches, rateMatch, getPendingRating }}
     >
       {children}
     </MatchesContext.Provider>

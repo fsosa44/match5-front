@@ -3,37 +3,31 @@ import { useParams } from "react-router-dom";
 import Layout from "../components/layout/Layout";
 import BackButton from "../components/atoms/back-button/BackButton";
 import { IoSend } from "react-icons/io5";
-import { getMessages } from "../api/chat";
+import { getPrivateMessages, PrivateMessage } from "../api/conversations";
 import {
   connectSocket,
-  joinMatchRoom,
-  leaveMatchRoom,
-  sendMatchMessage,
-  getSocket,
+  joinConversationRoom,
+  leaveConversationRoom,
+  sendPrivateMessage,
 } from "../services/socket";
 
-interface Message {
-  _id: string;
-  sender: { _id: string; name: string };
-  text: string;
-  createdAt: string;
-}
-
-const ChatRoom = () => {
-  const { matchId } = useParams<{ matchId: string }>();
-  const [messages, setMessages] = useState<Message[]>([]);
+const PrivateChatRoom = () => {
+  const { conversationId } = useParams<{ conversationId: string }>();
+  const [messages, setMessages] = useState<PrivateMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(true);
   const bottomRef = useRef<HTMLDivElement>(null);
   const currentUserId = localStorage.getItem("userId");
 
-  useEffect(() => {
-    if (!matchId) return;
+  // Get the other participant's name from the first message or URL state
+  const otherName = messages.find((m) => m.sender._id !== currentUserId)?.sender.name ?? "Chat privado";
 
-    // Load existing messages
+  useEffect(() => {
+    if (!conversationId) return;
+
     const loadMessages = async () => {
       try {
-        const data = await getMessages(matchId);
+        const data = await getPrivateMessages(conversationId);
         setMessages(data);
       } catch (err) {
         console.error("Error cargando mensajes:", err);
@@ -43,21 +37,20 @@ const ChatRoom = () => {
     };
     loadMessages();
 
-    // Connect socket and join room
     const socket = connectSocket();
-    joinMatchRoom(matchId);
+    joinConversationRoom(conversationId);
 
-    const handleNewMessage = (msg: Message) => {
+    const handleNewMessage = (msg: PrivateMessage) => {
       setMessages((prev) => [...prev, msg]);
     };
 
-    socket.on("message:match", handleNewMessage);
+    socket.on("message:private", handleNewMessage);
 
     return () => {
-      socket.off("message:match", handleNewMessage);
-      leaveMatchRoom(matchId);
+      socket.off("message:private", handleNewMessage);
+      leaveConversationRoom(conversationId);
     };
-  }, [matchId]);
+  }, [conversationId]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -65,10 +58,17 @@ const ChatRoom = () => {
 
   const handleSend = () => {
     const text = input.trim();
-    if (!text || !matchId) return;
-    sendMatchMessage(matchId, text);
+    if (!text || !conversationId) return;
+    sendPrivateMessage(conversationId, text);
     setInput("");
   };
+
+  const getInitials = (name: string) =>
+    name
+      .split(" ")
+      .map((w) => w[0])
+      .join("")
+      .slice(0, 2);
 
   return (
     <Layout hideNav>
@@ -77,17 +77,10 @@ const ChatRoom = () => {
         <div className="flex items-center gap-3 border-b border-white/5 px-4 pb-3 pt-4">
           <BackButton />
           <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary">
-              <span className="text-sm">⚽</span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent/20 text-xs font-bold text-accent">
+              {getInitials(otherName)}
             </div>
-            <div>
-              <h2 className="text-sm font-bold text-text-light">
-                Chat del partido
-              </h2>
-              <span className="text-[10px] text-accent">
-                {messages.length} mensajes
-              </span>
-            </div>
+            <h2 className="text-sm font-bold text-text-light">{otherName}</h2>
           </div>
         </div>
 
@@ -100,34 +93,24 @@ const ChatRoom = () => {
           ) : messages.length === 0 ? (
             <div className="flex items-center justify-center pt-20">
               <p className="text-sm text-text-light/50">
-                No hay mensajes. ¡Sé el primero en escribir!
+                No hay mensajes. ¡Empezá la conversación!
               </p>
             </div>
           ) : (
             <div className="flex flex-col gap-3">
               {messages.map((msg) => {
                 const isMe = msg.sender._id === currentUserId;
-                const initials = msg.sender.name
-                  .split(" ")
-                  .map((w) => w[0])
-                  .join("")
-                  .slice(0, 2);
                 return (
                   <div
                     key={msg._id}
                     className={`flex items-end gap-1.5 ${isMe ? "flex-row-reverse" : "flex-row"}`}
                   >
                     <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-secondary text-[9px] font-bold text-accent">
-                      {initials}
+                      {getInitials(msg.sender.name)}
                     </div>
                     <div
                       className={`flex max-w-[75%] flex-col ${isMe ? "items-end" : "items-start"}`}
                     >
-                      {!isMe && (
-                        <span className="mb-0.5 text-[10px] font-semibold text-accent">
-                          {msg.sender.name}
-                        </span>
-                      )}
                       <div
                         className={`rounded-2xl px-3.5 py-2 ${
                           isMe
@@ -177,4 +160,4 @@ const ChatRoom = () => {
   );
 };
 
-export default ChatRoom;
+export default PrivateChatRoom;
