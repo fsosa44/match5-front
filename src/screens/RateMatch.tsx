@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Layout from "../components/layout/Layout";
 import BackButton from "../components/atoms/back-button/BackButton";
-import { useMatches } from "../context/MatchesContext";
+import { useMatchesStore } from "../stores/matchesStore";
 import { FaStar, FaRegStar } from "react-icons/fa";
 import { Player } from "../types/match";
 import { motion, AnimatePresence } from "framer-motion";
@@ -16,7 +16,8 @@ interface PlayerRatingState {
 const RateMatch = () => {
   const { matchId } = useParams<{ matchId: string }>();
   const navigate = useNavigate();
-  const { finishedMatches, rateMatch } = useMatches();
+  const finishedMatches = useMatchesStore((s) => s.finishedMatches);
+  const rateMatch = useMatchesStore((s) => s.rateMatch);
   const match = finishedMatches.find((m) => m.id === matchId);
   const currentUserId = localStorage.getItem("userId") || "current";
 
@@ -183,7 +184,7 @@ const RateMatch = () => {
                 : { scale: 1 }
             }
             transition={{ duration: 0.3 }}
-            className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-transparent bg-secondary text-sm font-bold text-accent"
+            className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-transparent bg-surface-container-high text-sm font-bold text-primary"
           >
             {initials}
           </motion.div>
@@ -222,7 +223,7 @@ const RateMatch = () => {
                 placeholder="Comentario opcional..."
                 value={ratings[player.id]?.comment || ""}
                 onChange={(e) => setPlayerComment(player.id, e.target.value)}
-                className="w-full rounded-xl bg-secondary px-3 py-2 text-sm text-text-light placeholder-text-light/30 outline-none focus:ring-1 focus:ring-accent/50"
+                className="w-full rounded-xl bg-surface-container-high px-3 py-2 text-sm text-text-light placeholder-text-light/30 outline-none focus:ring-1 focus:ring-primary/50"
               />
             </motion.div>
           )}
@@ -276,7 +277,7 @@ const RateMatch = () => {
         </div>
 
         {/* Match info */}
-        <div className="mt-4 rounded-2xl bg-secondary p-4">
+        <div className="mt-4 rounded-2xl bg-surface-container-high p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-text-light/60">{match.date}</p>
@@ -284,7 +285,7 @@ const RateMatch = () => {
                 {match.location}
               </p>
             </div>
-            <div className="flex items-center gap-2 rounded-xl bg-primary px-3 py-1.5">
+            <div className="flex items-center gap-2 rounded-xl bg-surface-container px-3 py-1.5">
               <span className="text-lg font-bold text-accent">
                 {match.result.teamA}
               </span>
@@ -329,8 +330,8 @@ const RateMatch = () => {
           transition={{ type: "spring", stiffness: 400, damping: 25 }}
           className={`mt-8 w-full rounded-2xl py-4 text-lg font-bold ${
             allRated
-              ? "bg-accent text-button-text"
-              : "bg-secondary text-text-light/30"
+              ? "bg-primary text-button-text"
+              : "bg-surface-container-high text-on-surface/30"
           }`}
         >
           Enviar calificaciones ⭐

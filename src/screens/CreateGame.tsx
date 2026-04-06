@@ -4,7 +4,7 @@ import Layout from "../components/layout/Layout";
 import BackButton from "../components/atoms/back-button/BackButton";
 import Input from "../components/atoms/input/Input";
 import Button from "../components/atoms/button/Button";
-import { useMatches } from "../context/MatchesContext";
+import { useMatchesStore } from "../stores/matchesStore";
 import { AgeRange, PlayStyle } from "../types/match";
 import { createMatch } from "../api/matches";
 
@@ -36,7 +36,7 @@ const DEFAULT_LNG = -58.329;
 
 const CreateGame = () => {
   const navigate = useNavigate();
-  const { addMatch } = useMatches();
+  const addMatch = useMatchesStore((s) => s.addMatch);
 
   const [name, setName] = useState("");
   const [location, setLocation] = useState("");
@@ -106,7 +106,7 @@ const CreateGame = () => {
         </div>
 
         {/* Hero card */}
-        <div className="mt-6 flex w-full max-w-sm items-center gap-4 rounded-2xl bg-secondary px-6 py-5">
+        <div className="mt-6 flex w-full max-w-sm items-center gap-4 rounded-2xl bg-surface-container-high px-6 py-5">
           <img
             src="/f5LogoCuted.png"
             alt="Match 5 Logo"

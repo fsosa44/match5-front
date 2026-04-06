@@ -2,6 +2,7 @@ import { api } from "./client";
 
 interface RegisterPayload {
   name: string;
+  lastName: string;
   email: string;
   password: string;
 }
@@ -10,6 +11,7 @@ interface AuthResponse {
   user: {
     _id: string;
     name: string;
+    lastName: string;
     email: string;
     position: string;
     playStyle: string;
@@ -47,6 +49,6 @@ export const loginUser = async (payload: LoginPayload): Promise<AuthResponse> =>
   return data;
 };
 
-export const getMe = async (): Promise<AuthResponse["user"]> => {
+export const getMe = async (): Promise<any> => {
   return api("/auth/me");
 };

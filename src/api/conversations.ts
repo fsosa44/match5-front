@@ -4,6 +4,7 @@ export interface ConversationParticipant {
   _id: string;
   name: string;
   position?: string;
+  profilePhoto?: string | null;
 }
 
 export interface Conversation {
@@ -20,13 +21,16 @@ export interface Conversation {
 export interface PrivateMessage {
   _id: string;
   conversation: string;
-  sender: { _id: string; name: string };
+  sender: { _id: string; name: string; profilePhoto?: string | null };
   text: string;
   createdAt: string;
 }
 
 export const getConversations = (): Promise<Conversation[]> =>
   api("/conversations");
+
+export const getConversationById = (conversationId: string): Promise<Conversation> =>
+  api(`/conversations/${conversationId}`);
 
 export const getOrCreateConversation = (participantId: string): Promise<Conversation> =>
   api("/conversations", {

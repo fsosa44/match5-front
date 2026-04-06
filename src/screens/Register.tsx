@@ -7,6 +7,7 @@ import { registerUser } from "../api/auth";
 const Register = () => {
   const navigate = useNavigate();
   const [name, setName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -16,7 +17,7 @@ const Register = () => {
   const handleRegister = async () => {
     setError("");
 
-    if (!name.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
+    if (!name.trim() || !lastName.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
       setError("Completá todos los campos");
       return;
     }
@@ -33,7 +34,7 @@ const Register = () => {
 
     try {
       setLoading(true);
-      await registerUser({ name: name.trim(), email: email.trim(), password });
+      await registerUser({ name: name.trim(), lastName: lastName.trim(), email: email.trim(), password });
       navigate("/");
     } catch (err: any) {
       setError(err.message || "Error al crear la cuenta");
@@ -43,7 +44,7 @@ const Register = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center bg-primary px-6 py-4">
+    <div className="flex min-h-screen flex-col items-center bg-background px-6 py-4">
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="mt-12 flex justify-center">
@@ -62,6 +63,12 @@ const Register = () => {
             placeholder="Nombre"
             value={name}
             onChange={(e) => setName(e.target.value)}
+          />
+          <Input
+            type="text"
+            placeholder="Apellido"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
           />
           <Input
             type="email"

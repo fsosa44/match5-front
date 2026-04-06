@@ -5,7 +5,7 @@ export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement>;
 const Button: React.FC<ButtonProps> = (props) => {
   return (
     <button
-      className="w-full rounded-2xl bg-accent px-6 py-4 text-xl font-semibold text-button-text transition-all duration-200 hover:bg-accent-light active:scale-[0.98] active:bg-accent-light focus:outline-none focus:ring-2 focus:ring-accent-light focus:ring-offset-2 focus:ring-offset-primary"
+      className="w-full rounded-2xl px-6 py-4 text-lg font-bold text-button-text shadow-lg shadow-primary/10 transition-all duration-200 active:scale-[0.98] focus:outline-none disabled:opacity-50 bg-gradient-to-br from-primary to-primary-container"
       {...props}
     >
       {props.children}

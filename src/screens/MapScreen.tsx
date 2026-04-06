@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import Layout from "../components/layout/Layout";
 import MatchPopup from "../components/map/MatchPopup";
-import { useMatches } from "../context/MatchesContext";
+import { useMatchesStore } from "../stores/matchesStore";
 
 const ballIcon = new L.DivIcon({
   className: "",
@@ -25,7 +25,7 @@ const ballIcon = new L.DivIcon({
 const SARANDI_CENTER: L.LatLngExpression = [-34.6775, -58.3290];
 
 const MapScreen = () => {
-  const { matches } = useMatches();
+  const matches = useMatchesStore((s) => s.matches);
 
   useEffect(() => {
     window.dispatchEvent(new Event("resize"));

@@ -13,6 +13,14 @@ interface CreateMatchPayload {
   intensity?: string;
 }
 
+// Formatea nombre como "E. Pérez" (inicial + apellido)
+const formatPlayerName = (user: any): string => {
+  const first = user.name || "";
+  const last = user.lastName || "";
+  if (first && last) return `${first[0].toUpperCase()}. ${last}`;
+  return first || "Jugador";
+};
+
 // Transforma la respuesta del backend al formato que usa el frontend
 const transformMatch = (m: any): MatchData => {
   const dateObj = new Date(m.date);
@@ -32,7 +40,7 @@ const transformMatch = (m: any): MatchData => {
     lng: m.lng,
     maxPlayers: m.maxPlayers,
     players: m.players.map((slot: any) =>
-      slot.user ? { id: slot.user._id || slot.user, name: slot.user.name || "Jugador" } : null
+      slot.user ? { id: slot.user._id || slot.user, name: formatPlayerName(slot.user) } : null
     ),
     ageRange: m.ageRange?.label ? m.ageRange : undefined,
     intensity: m.intensity,
@@ -82,11 +90,11 @@ export const getFinishedMatches = async (): Promise<FinishedMatchData[]> => {
 
     const teamA: Player[] = m.players
       .filter((s: any) => s.team === "A" && s.user)
-      .map((s: any) => ({ id: s.user._id || s.user, name: s.user.name || "Jugador" }));
+      .map((s: any) => ({ id: s.user._id || s.user, name: formatPlayerName(s.user) }));
 
     const teamB: Player[] = m.players
       .filter((s: any) => s.team === "B" && s.user)
-      .map((s: any) => ({ id: s.user._id || s.user, name: s.user.name || "Jugador" }));
+      .map((s: any) => ({ id: s.user._id || s.user, name: formatPlayerName(s.user) }));
 
     return {
       ...base,

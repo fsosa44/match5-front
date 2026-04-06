@@ -11,10 +11,13 @@ import {
   sendMatchMessage,
   getSocket,
 } from "../services/socket";
+import { useChatStore } from "../stores/chatStore";
+
+const API_BASE = (process.env.REACT_APP_API_URL || "http://localhost:5000/api").replace("/api", "");
 
 interface Message {
   _id: string;
-  sender: { _id: string; name: string };
+  sender: { _id: string; name: string; profilePhoto?: string | null };
   text: string;
   createdAt: string;
 }
@@ -27,8 +30,12 @@ const ChatRoom = () => {
   const bottomRef = useRef<HTMLDivElement>(null);
   const currentUserId = localStorage.getItem("userId");
 
+  const setActiveChatId = useChatStore((s) => s.setActiveChatId);
+
   useEffect(() => {
     if (!matchId) return;
+
+    setActiveChatId(matchId);
 
     // Load existing messages
     const loadMessages = async () => {
@@ -56,6 +63,7 @@ const ChatRoom = () => {
     return () => {
       socket.off("message:match", handleNewMessage);
       leaveMatchRoom(matchId);
+      setActiveChatId(null);
     };
   }, [matchId]);
 
@@ -77,7 +85,7 @@ const ChatRoom = () => {
         <div className="flex items-center gap-3 border-b border-white/5 px-4 pb-3 pt-4">
           <BackButton />
           <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-surface-container-high">
               <span className="text-sm">⚽</span>
             </div>
             <div>
@@ -117,22 +125,30 @@ const ChatRoom = () => {
                     key={msg._id}
                     className={`flex items-end gap-1.5 ${isMe ? "flex-row-reverse" : "flex-row"}`}
                   >
-                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-secondary text-[9px] font-bold text-accent">
-                      {initials}
-                    </div>
+                    {msg.sender.profilePhoto ? (
+                      <img
+                        src={`${API_BASE}${msg.sender.profilePhoto}`}
+                        alt={msg.sender.name}
+                        className="h-7 w-7 shrink-0 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-surface-container-high text-[9px] font-bold text-primary">
+                        {initials}
+                      </div>
+                    )}
                     <div
                       className={`flex max-w-[75%] flex-col ${isMe ? "items-end" : "items-start"}`}
                     >
                       {!isMe && (
-                        <span className="mb-0.5 text-[10px] font-semibold text-accent">
+                        <span className="mb-0.5 text-[10px] font-semibold text-primary">
                           {msg.sender.name}
                         </span>
                       )}
                       <div
                         className={`rounded-2xl px-3.5 py-2 ${
                           isMe
-                            ? "rounded-br-md bg-accent text-button-text"
-                            : "rounded-bl-md bg-secondary text-text-light"
+                            ? "rounded-br-md bg-primary text-button-text"
+                            : "rounded-bl-md bg-surface-container-high text-on-surface"
                         }`}
                       >
                         <p className="text-sm leading-relaxed">{msg.text}</p>
