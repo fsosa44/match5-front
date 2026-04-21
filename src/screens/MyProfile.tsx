@@ -2,6 +2,7 @@ import Layout from "../components/layout/Layout";
 import StarRating from "../components/atoms/star-rating/StarRating";
 import { useUserStore } from "../stores/userStore";
 import { useMatchesStore } from "../stores/matchesStore";
+import { useChatStore } from "../stores/chatStore";
 import { useNavigate } from "react-router-dom";
 import {
   FiTarget,
@@ -13,8 +14,11 @@ import {
   FiCalendar,
   FiEdit2,
   FiChevronRight,
+  FiLogOut,
 } from "react-icons/fi";
 import { FaStar } from "react-icons/fa";
+import { logout } from "../api/auth";
+import { disconnectSocket } from "../services/socket";
 
 const API_BASE = (process.env.REACT_APP_API_URL || "http://localhost:5000/api").replace("/api", "");
 
@@ -36,8 +40,17 @@ const getAge = (birthDate: string): number => {
 const MyProfile = () => {
   const user = useUserStore((s) => s.user);
   const loading = useUserStore((s) => s.loading);
+  const clearUser = useUserStore((s) => s.clear);
   const navigate = useNavigate();
   const finishedMatches = useMatchesStore((s) => s.finishedMatches);
+
+  const handleLogout = () => {
+    logout();
+    disconnectSocket();
+    clearUser();
+    useChatStore.getState().unreadChats.clear();
+    navigate("/login", { replace: true });
+  };
 
   if (loading || !user) {
     return (
@@ -294,6 +307,15 @@ const MyProfile = () => {
             })}
           </div>
         </section>
+
+        {/* Logout */}
+        <button
+          onClick={handleLogout}
+          className="mt-8 flex w-full max-w-sm items-center justify-center gap-2 rounded-2xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm font-semibold text-red-400 transition-all active:scale-[0.97]"
+        >
+          <FiLogOut size={16} />
+          Cerrar sesión
+        </button>
       </div>
     </Layout>
   );
