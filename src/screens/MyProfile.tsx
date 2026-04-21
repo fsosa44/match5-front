@@ -63,7 +63,7 @@ const MyProfile = () => {
   }
 
   const initials = `${user.name?.[0] || ""}${user.lastName?.[0] || ""}`.toUpperCase();
-  const fullName = `${user.name} ${user.lastName}`.trim();
+  const fullName = `${user.name || ""} ${user.lastName || ""}`.trim();
   const age = user.birthDate ? getAge(user.birthDate) : null;
   const style = PLAY_STYLE_LABELS[user.playStyle];
   const memberSince = user.createdAt

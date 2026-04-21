@@ -3,9 +3,13 @@ import Input from "../components/atoms/input/Input";
 import Button from "../components/atoms/button/Button";
 import { useNavigate } from "react-router-dom";
 import { registerUser } from "../api/auth";
+import { useUserStore } from "../stores/userStore";
+import { useMatchesStore } from "../stores/matchesStore";
 
 const Register = () => {
   const navigate = useNavigate();
+  const fetchUser = useUserStore((s) => s.fetchUser);
+  const fetchAll = useMatchesStore((s) => s.fetchAll);
   const [name, setName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -35,6 +39,7 @@ const Register = () => {
     try {
       setLoading(true);
       await registerUser({ name: name.trim(), lastName: lastName.trim(), email: email.trim(), password });
+      await Promise.all([fetchUser(), fetchAll()]);
       navigate("/");
     } catch (err: any) {
       setError(err.message || "Error al crear la cuenta");

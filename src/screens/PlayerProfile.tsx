@@ -44,7 +44,7 @@ const PlayerProfileScreen = () => {
   }
 
   const initials = `${player.name?.[0] || ""}${player.lastName?.[0] || ""}`.toUpperCase();
-  const fullName = `${player.name} ${player.lastName}`.trim();
+  const fullName = `${player.name || ""} ${player.lastName || ""}`.trim();
 
   return (
     <Layout>

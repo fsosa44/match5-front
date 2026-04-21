@@ -3,9 +3,13 @@ import Input from "../components/atoms/input/Input";
 import Button from "../components/atoms/button/Button";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../api/auth";
+import { useUserStore } from "../stores/userStore";
+import { useMatchesStore } from "../stores/matchesStore";
 
 const Login = () => {
   const navigate = useNavigate();
+  const fetchUser = useUserStore((s) => s.fetchUser);
+  const fetchAll = useMatchesStore((s) => s.fetchAll);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -22,6 +26,7 @@ const Login = () => {
     try {
       setLoading(true);
       await loginUser({ email: email.trim(), password });
+      await Promise.all([fetchUser(), fetchAll()]);
       navigate("/");
     } catch (err: any) {
       setError(err.message || "Email o contraseña incorrectos");
