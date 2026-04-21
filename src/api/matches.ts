@@ -49,7 +49,9 @@ const transformMatch = (m: any): MatchData => {
 
 export const getMatches = async (): Promise<MatchData[]> => {
   const data = await api("/matches");
-  return data.map(transformMatch);
+  return data
+    .filter((m: any) => m.status !== "finished" && m.status !== "cancelled")
+    .map(transformMatch);
 };
 
 export const getMatchById = async (id: string): Promise<MatchData> => {

@@ -6,7 +6,8 @@ import SoccerField from "../components/field/SoccerField";
 import ConfirmModal from "../components/atoms/confirm-modal/ConfirmModal";
 import { useMatchesStore } from "../stores/matchesStore";
 import { Player } from "../types/match";
-import { joinMatch as joinMatchAPI, leaveMatch as leaveMatchAPI } from "../api/matches";
+import { joinMatch as joinMatchAPI, leaveMatch as leaveMatchAPI, getMatchById } from "../api/matches";
+import { connectSocket } from "../services/socket";
 import { FiClock, FiMapPin, FiUsers, FiHeart, FiZap, FiLogOut } from "react-icons/fi";
 
 const MatchDetail = () => {
@@ -33,6 +34,27 @@ const MatchDetail = () => {
 
   const myIndex = players.findIndex((p) => p?.id === currentUser.id);
   const hasJoined = myIndex !== -1;
+
+  // Fetch fresh match data on mount and listen for real-time updates
+  useEffect(() => {
+    if (!id) return;
+
+    getMatchById(id).then(updateMatch).catch(console.error);
+
+    const socket = connectSocket();
+    socket.emit("join:match-detail", id);
+
+    const handlePlayerUpdate = () => {
+      getMatchById(id).then(updateMatch).catch(console.error);
+    };
+
+    socket.on("match:playerUpdate", handlePlayerUpdate);
+
+    return () => {
+      socket.off("match:playerUpdate", handlePlayerUpdate);
+      socket.emit("leave:match-detail", id);
+    };
+  }, [id, updateMatch]);
 
   // Sync players if match data updates
   useEffect(() => {

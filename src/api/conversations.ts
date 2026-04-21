@@ -3,6 +3,7 @@ import { api } from "./client";
 export interface ConversationParticipant {
   _id: string;
   name: string;
+  lastName?: string;
   position?: string;
   profilePhoto?: string | null;
 }
@@ -21,7 +22,7 @@ export interface Conversation {
 export interface PrivateMessage {
   _id: string;
   conversation: string;
-  sender: { _id: string; name: string; profilePhoto?: string | null };
+  sender: { _id: string; name: string; lastName?: string; profilePhoto?: string | null };
   text: string;
   createdAt: string;
 }
