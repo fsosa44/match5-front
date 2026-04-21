@@ -7,10 +7,12 @@ import { useChatStore, NotificationItem } from "../stores/chatStore";
 import { FiPlus, FiBell, FiSliders, FiMessageCircle, FiUsers, FiX } from "react-icons/fi";
 import { FaStar } from "react-icons/fa";
 import { ReactComponent as Logo } from "../assets/logo.svg";
+import Loader from "../components/atoms/loader/Loader";
 
 const Home = () => {
   const navigate = useNavigate();
   const matches = useMatchesStore((s) => s.matches);
+  const matchesLoading = useMatchesStore((s) => s.loading);
   const getPendingRating = useMatchesStore((s) => s.getPendingRating);
   const pendingMatch = getPendingRating();
   const unreadCount = useChatStore((s) => s.totalUnread)();
@@ -183,7 +185,13 @@ const Home = () => {
               </button>
             </div>
             <div className="flex flex-col gap-4">
-              {matches.slice(0, 2).map((match) => (
+              {matchesLoading ? (
+                <Loader size="section" />
+              ) : matches.slice(0, 2).length === 0 ? (
+                <p className="py-8 text-center text-sm text-on-surface-variant/60">
+                  No hay partidos disponibles
+                </p>
+              ) : matches.slice(0, 2).map((match) => (
                 <GameCard
                   key={match.id}
                   id={match.id}
@@ -204,7 +212,7 @@ const Home = () => {
           </section>
 
           {/* Juegos cercanos */}
-          {matches.length > 2 && (
+          {!matchesLoading && matches.length > 2 && (
             <section className="mt-8 pb-4">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="font-headline text-lg font-bold text-on-background">

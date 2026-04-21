@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import Layout from "../components/layout/Layout";
 import BackButton from "../components/atoms/back-button/BackButton";
 import { IoSend } from "react-icons/io5";
+import Loader from "../components/atoms/loader/Loader";
 import { getPrivateMessages, getConversationById, PrivateMessage, ConversationParticipant } from "../api/conversations";
 import {
   connectSocket,
@@ -112,9 +113,7 @@ const PrivateChatRoom = () => {
         {/* Messages */}
         <div className="flex-1 overflow-y-auto px-4 py-4">
           {loading ? (
-            <div className="flex items-center justify-center pt-20">
-              <p className="text-sm text-text-light/50">Cargando mensajes...</p>
-            </div>
+            <Loader size="section" label="Cargando mensajes" />
           ) : messages.length === 0 ? (
             <div className="flex items-center justify-center pt-20">
               <p className="text-sm text-text-light/50">

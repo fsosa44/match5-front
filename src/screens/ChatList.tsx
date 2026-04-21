@@ -6,6 +6,7 @@ import { getConversations, getOrCreateConversation, Conversation } from "../api/
 import { searchUsers, SearchUser } from "../api/users";
 import { IoSearch, IoClose } from "react-icons/io5";
 import { FiMessageCircle, FiUsers } from "react-icons/fi";
+import Loader from "../components/atoms/loader/Loader";
 import { useChatStore } from "../stores/chatStore";
 
 const API_BASE = (process.env.REACT_APP_API_URL || "http://localhost:5000/api").replace("/api", "");
@@ -236,7 +237,7 @@ const ChatList = () => {
             {!searchQuery && (
               <>
                 {loadingConv ? (
-                  <p className="pt-10 text-center text-sm text-text-light/50">Cargando...</p>
+                  <Loader size="section" label="Cargando conversaciones" />
                 ) : conversations.length === 0 ? (
                   <div className="flex flex-col items-center justify-center pt-20">
                     <FiMessageCircle size={48} className="text-text-light/20" />

@@ -12,6 +12,7 @@ import {
   getSocket,
 } from "../services/socket";
 import { useChatStore } from "../stores/chatStore";
+import Loader from "../components/atoms/loader/Loader";
 
 const API_BASE = (process.env.REACT_APP_API_URL || "http://localhost:5000/api").replace("/api", "");
 
@@ -102,9 +103,7 @@ const ChatRoom = () => {
         {/* Messages */}
         <div className="flex-1 overflow-y-auto px-4 py-4">
           {loading ? (
-            <div className="flex items-center justify-center pt-20">
-              <p className="text-sm text-text-light/50">Cargando mensajes...</p>
-            </div>
+            <Loader size="section" label="Cargando mensajes" />
           ) : messages.length === 0 ? (
             <div className="flex items-center justify-center pt-20">
               <p className="text-sm text-text-light/50">
