@@ -2,7 +2,7 @@
 
 ## Estado actual del proyecto
 
-Match 5 es una app para organizar partidos de fútbol 5 (y variantes) en la zona de Sarandí/Avellaneda. Actualmente cuenta con:
+Match 5 es una app para organizar partidos de fútbol 5 (y variantes). Actualmente cuenta con:
 
 - ✅ Registro de usuario (UI)
 - ✅ Home con partidos próximos y cercanos
