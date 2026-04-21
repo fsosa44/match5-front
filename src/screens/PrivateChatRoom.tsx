@@ -30,22 +30,28 @@ const PrivateChatRoom = () => {
 
     setActiveChatId(conversationId);
 
-    const loadData = async () => {
+    const loadMessages = async () => {
       try {
-        const [msgs, conv] = await Promise.all([
-          getPrivateMessages(conversationId),
-          getConversationById(conversationId),
-        ]);
+        const msgs = await getPrivateMessages(conversationId);
         setMessages(msgs);
+      } catch (err) {
+        console.error("Error cargando mensajes:", err);
+      }
+    };
+
+    const loadConversation = async () => {
+      try {
+        const conv = await getConversationById(conversationId);
         const other = conv.participants.find((p) => p._id !== currentUserId);
         if (other) setOtherUser(other);
       } catch (err) {
-        console.error("Error cargando datos:", err);
-      } finally {
-        setLoading(false);
+        console.error("Error cargando conversación:", err);
       }
     };
-    loadData();
+
+    Promise.all([loadMessages(), loadConversation()]).finally(() =>
+      setLoading(false)
+    );
 
     const socket = connectSocket();
     joinConversationRoom(conversationId);
@@ -99,7 +105,7 @@ const PrivateChatRoom = () => {
                 {getInitials(otherUser?.name ?? "?")}
               </div>
             )}
-            <h2 className="text-sm font-bold text-on-surface">{otherUser?.name ?? "Chat privado"}</h2>
+            <h2 className="text-sm font-bold text-on-surface">{otherUser ? `${otherUser.name} ${otherUser.lastName || ""}`.trim() : "Chat privado"}</h2>
           </div>
         </div>
 

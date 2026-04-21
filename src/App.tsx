@@ -29,6 +29,7 @@ const App = () => {
   const fetchAll = useMatchesStore((s) => s.fetchAll);
   const fetchUser = useUserStore((s) => s.fetchUser);
   const addUnread = useChatStore((s) => s.addUnread);
+  const addNotification = useChatStore((s) => s.addNotification);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -45,8 +46,23 @@ const App = () => {
 
     const socket = connectSocket();
 
-    const handleNotification = ({ chatId }: { type: string; chatId: string }) => {
-      addUnread(chatId);
+    const handleNotification = (data: {
+      type: string;
+      chatId: string;
+      senderName?: string;
+      senderLastName?: string;
+      text?: string;
+    }) => {
+      addUnread(data.chatId);
+      if (data.senderName) {
+        const fullName = `${data.senderName} ${data.senderLastName || ""}`.trim();
+        addNotification({
+          type: data.type as "private" | "match",
+          chatId: data.chatId,
+          senderName: fullName,
+          text: data.text || "",
+        });
+      }
     };
 
     socket.on("notification:message", handleNotification);
@@ -54,7 +70,7 @@ const App = () => {
     return () => {
       socket.off("notification:message", handleNotification);
     };
-  }, [addUnread]);
+  }, [addUnread, addNotification]);
 
   return (
     <Router>

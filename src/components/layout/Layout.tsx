@@ -15,7 +15,7 @@ const Layout: React.FC<LayoutProps> = ({ children, noPadding, hideNav }) => {
     <div className="min-h-screen bg-background">
       <main
         key={location.pathname}
-        className={noPadding ? "" : hideNav ? "" : "pb-20"}
+        className={noPadding ? "" : hideNav ? "" : "pb-28"}
         style={{ animation: "pageEnter 0.35s ease-out" }}
       >
         {children}

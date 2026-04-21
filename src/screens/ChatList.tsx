@@ -6,6 +6,9 @@ import { getConversations, getOrCreateConversation, Conversation } from "../api/
 import { searchUsers, SearchUser } from "../api/users";
 import { IoSearch, IoClose } from "react-icons/io5";
 import { FiMessageCircle, FiUsers } from "react-icons/fi";
+import { useChatStore } from "../stores/chatStore";
+
+const API_BASE = (process.env.REACT_APP_API_URL || "http://localhost:5000/api").replace("/api", "");
 
 type Tab = "partidos" | "privados";
 
@@ -19,6 +22,7 @@ const ChatList = () => {
   const [searchResults, setSearchResults] = useState<SearchUser[]>([]);
   const [searching, setSearching] = useState(false);
   const currentUserId = localStorage.getItem("userId");
+  const unreadChats = useChatStore((s) => s.unreadChats);
 
   // Load conversations when private tab is active
   useEffect(() => {
@@ -137,8 +141,11 @@ const ChatList = () => {
                     onClick={() => navigate(`/chat/${match.id}`)}
                     className="flex w-full items-center gap-3 rounded-2xl bg-surface-container-high p-4 text-left transition-colors active:bg-input"
                   >
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-surface-container">
+                    <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-surface-container">
                       <span className="text-xl">⚽</span>
+                      {unreadChats.has(match.id) && (
+                        <span className="absolute right-0 top-0 h-3 w-3 rounded-full border-2 border-surface-container-high bg-accent" />
+                      )}
                     </div>
                     <div className="min-w-0 flex-1">
                       <span className="truncate text-sm font-bold text-text-light">
@@ -206,11 +213,11 @@ const ChatList = () => {
                         className="flex w-full items-center gap-3 rounded-xl bg-surface-container-high p-3 text-left transition-colors active:bg-input"
                       >
                         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/20 text-xs font-bold text-accent">
-                          {getInitials(user.name)}
+                          {getInitials(`${user.name} ${user.lastName || ""}`.trim())}
                         </div>
                         <div>
                           <span className="text-sm font-semibold text-text-light">
-                            {user.name}
+                            {`${user.name} ${user.lastName || ""}`.trim()}
                           </span>
                           {user.position && (
                             <span className="block text-[11px] text-text-light/40">
@@ -249,13 +256,26 @@ const ChatList = () => {
                           onClick={() => navigate(`/private-chat/${conv._id}`)}
                           className="flex w-full items-center gap-3 rounded-2xl bg-surface-container-high p-4 text-left transition-colors active:bg-input"
                         >
-                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accent/20 text-xs font-bold text-accent">
-                            {getInitials(other.name)}
+                          <div className="relative shrink-0">
+                            {other.profilePhoto ? (
+                              <img
+                                src={`${API_BASE}${other.profilePhoto}`}
+                                alt={other.name}
+                                className="h-12 w-12 rounded-full object-cover"
+                              />
+                            ) : (
+                              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent/20 text-xs font-bold text-accent">
+                                {getInitials(`${other.name} ${other.lastName || ""}`.trim())}
+                              </div>
+                            )}
+                            {unreadChats.has(conv._id) && (
+                              <span className="absolute right-0 top-0 h-3 w-3 rounded-full border-2 border-surface-container-high bg-accent" />
+                            )}
                           </div>
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center justify-between">
                               <span className="truncate text-sm font-bold text-text-light">
-                                {other.name}
+                                {`${other.name} ${other.lastName || ""}`.trim()}
                               </span>
                               {conv.lastMessage?.createdAt && (
                                 <span className="shrink-0 text-[10px] text-text-light/40">

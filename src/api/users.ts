@@ -66,6 +66,7 @@ export const uploadProfilePhoto = async (file: File): Promise<UserProfile> => {
 export interface SearchUser {
   _id: string;
   name: string;
+  lastName?: string;
   position?: string;
   playStyle?: string;
 }

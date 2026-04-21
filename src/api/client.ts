@@ -16,6 +16,13 @@ export const api = async (endpoint: string, options: RequestInit = {}) => {
 
   const data = await res.json();
 
+  if (res.status === 401 && token) {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userId");
+    window.location.href = "/register";
+    throw new Error("Sesión expirada");
+  }
+
   if (!res.ok) {
     throw new Error(data.message || "Error en la solicitud");
   }
