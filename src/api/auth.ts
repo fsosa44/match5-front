@@ -52,3 +52,8 @@ export const loginUser = async (payload: LoginPayload): Promise<AuthResponse> =>
 export const getMe = async (): Promise<any> => {
   return api("/auth/me");
 };
+
+export const logout = () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("userId");
+};
