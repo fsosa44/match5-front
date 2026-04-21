@@ -40,7 +40,7 @@ const Login = () => {
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="mt-12 flex justify-center">
-          <img src="/F5Up.png" alt="Match 5 Logo" className="h-36 w-auto" />
+          <img src="/f5Up.png" alt="Match 5 Logo" className="h-36 w-auto" />
         </div>
 
         {/* Title */}

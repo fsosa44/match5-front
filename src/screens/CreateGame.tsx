@@ -108,7 +108,7 @@ const CreateGame = () => {
         {/* Hero card */}
         <div className="mt-6 flex w-full max-w-sm items-center gap-4 rounded-2xl bg-surface-container-high px-6 py-5">
           <img
-            src="/f5LogoCuted.png"
+            src="/f5LogoCuted.PNG"
             alt="Match 5 Logo"
             className="h-20 w-auto"
           />
