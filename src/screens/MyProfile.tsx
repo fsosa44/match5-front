@@ -17,6 +17,7 @@ import {
   FiLogOut,
 } from "react-icons/fi";
 import { FaStar } from "react-icons/fa";
+import Loader from "../components/atoms/loader/Loader";
 import { logout } from "../api/auth";
 import { disconnectSocket } from "../services/socket";
 
@@ -55,9 +56,7 @@ const MyProfile = () => {
   if (loading || !user) {
     return (
       <Layout>
-        <div className="flex min-h-[80vh] items-center justify-center">
-          <p className="text-lg text-text-light/50">Cargando perfil...</p>
-        </div>
+        <Loader size="screen" label="Cargando perfil" />
       </Layout>
     );
   }

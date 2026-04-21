@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import Layout from "../components/layout/Layout";
 import BackButton from "../components/atoms/back-button/BackButton";
 import Input from "../components/atoms/input/Input";
+import DateInput from "../components/atoms/input/DateInput";
+import TimeInput from "../components/atoms/input/TimeInput";
 import Button from "../components/atoms/button/Button";
 import { useMatchesStore } from "../stores/matchesStore";
 import { AgeRange, PlayStyle } from "../types/match";
@@ -134,14 +136,12 @@ const CreateGame = () => {
             value={location}
             onChange={(e) => setLocation(e.target.value)}
           />
-          <Input
-            type="date"
+          <DateInput
             placeholder="Fecha"
             value={date}
             onChange={(e) => setDate(e.target.value)}
           />
-          <Input
-            type="time"
+          <TimeInput
             placeholder="Hora"
             value={time}
             onChange={(e) => setTime(e.target.value)}

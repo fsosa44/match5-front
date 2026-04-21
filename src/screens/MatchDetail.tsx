@@ -9,11 +9,13 @@ import { Player } from "../types/match";
 import { joinMatch as joinMatchAPI, leaveMatch as leaveMatchAPI, getMatchById } from "../api/matches";
 import { connectSocket } from "../services/socket";
 import { FiClock, FiMapPin, FiUsers, FiHeart, FiZap, FiLogOut } from "react-icons/fi";
+import Loader from "../components/atoms/loader/Loader";
 
 const MatchDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const matches = useMatchesStore((s) => s.matches);
+  const storeLoading = useMatchesStore((s) => s.loading);
   const updateMatch = useMatchesStore((s) => s.updateMatch);
   const match = matches.find((m) => m.id === id);
 
@@ -140,12 +142,16 @@ const MatchDetail = () => {
     [navigate, currentUser.id],
   );
 
-  if (!match) {
+  if (storeLoading || !match) {
     return (
       <Layout>
-        <div className="flex min-h-[80vh] items-center justify-center">
-          <p className="text-lg text-text-light/50">Partido no encontrado</p>
-        </div>
+        {storeLoading ? (
+          <Loader size="screen" label="Cargando partido" />
+        ) : (
+          <div className="flex min-h-[80vh] items-center justify-center">
+            <p className="text-lg text-text-light/50">Partido no encontrado</p>
+          </div>
+        )}
       </Layout>
     );
   }

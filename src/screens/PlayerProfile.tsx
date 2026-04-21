@@ -4,6 +4,7 @@ import Layout from "../components/layout/Layout";
 import BackButton from "../components/atoms/back-button/BackButton";
 import StarRating from "../components/atoms/star-rating/StarRating";
 import { getUserById, UserProfile } from "../api/users";
+import Loader from "../components/atoms/loader/Loader";
 import { FiTarget, FiShield, FiActivity } from "react-icons/fi";
 import { FaStar } from "react-icons/fa";
 
@@ -26,9 +27,7 @@ const PlayerProfileScreen = () => {
   if (loading) {
     return (
       <Layout>
-        <div className="flex min-h-[80vh] items-center justify-center">
-          <p className="text-lg text-text-light/50">Cargando...</p>
-        </div>
+        <Loader size="screen" label="Cargando jugador" />
       </Layout>
     );
   }
