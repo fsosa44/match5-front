@@ -142,11 +142,8 @@ const ChatList = () => {
                     onClick={() => navigate(`/chat/${match.id}`)}
                     className="flex w-full items-center gap-3 rounded-2xl bg-surface-container-high p-4 text-left transition-colors active:bg-input"
                   >
-                    <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-surface-container">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-surface-container">
                       <span className="text-xl">⚽</span>
-                      {unreadChats.has(match.id) && (
-                        <span className="absolute right-0 top-0 h-3 w-3 rounded-full border-2 border-surface-container-high bg-accent" />
-                      )}
                     </div>
                     <div className="min-w-0 flex-1">
                       <span className="truncate text-sm font-bold text-text-light">
@@ -159,6 +156,9 @@ const ChatList = () => {
                         {match.location} · {match.players.filter(Boolean).length}/{match.maxPlayers} jugadores
                       </p>
                     </div>
+                    {unreadChats.has(match.id) && (
+                      <span className="h-3 w-3 shrink-0 rounded-full bg-accent" />
+                    )}
                   </button>
                 ))}
               </div>
@@ -213,9 +213,17 @@ const ChatList = () => {
                         onClick={() => handleStartConversation(user._id)}
                         className="flex w-full items-center gap-3 rounded-xl bg-surface-container-high p-3 text-left transition-colors active:bg-input"
                       >
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/20 text-xs font-bold text-accent">
-                          {getInitials(`${user.name} ${user.lastName || ""}`.trim())}
-                        </div>
+                        {user.profilePhoto ? (
+                          <img
+                            src={`${API_BASE}${user.profilePhoto}`}
+                            alt={user.name}
+                            className="h-10 w-10 shrink-0 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/20 text-xs font-bold text-accent">
+                            {getInitials(`${user.name} ${user.lastName || ""}`.trim())}
+                          </div>
+                        )}
                         <div>
                           <span className="text-sm font-semibold text-text-light">
                             {`${user.name} ${user.lastName || ""}`.trim()}
@@ -257,7 +265,7 @@ const ChatList = () => {
                           onClick={() => navigate(`/private-chat/${conv._id}`)}
                           className="flex w-full items-center gap-3 rounded-2xl bg-surface-container-high p-4 text-left transition-colors active:bg-input"
                         >
-                          <div className="relative shrink-0">
+                          <div className="shrink-0">
                             {other.profilePhoto ? (
                               <img
                                 src={`${API_BASE}${other.profilePhoto}`}
@@ -268,9 +276,6 @@ const ChatList = () => {
                               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent/20 text-xs font-bold text-accent">
                                 {getInitials(`${other.name} ${other.lastName || ""}`.trim())}
                               </div>
-                            )}
-                            {unreadChats.has(conv._id) && (
-                              <span className="absolute right-0 top-0 h-3 w-3 rounded-full border-2 border-surface-container-high bg-accent" />
                             )}
                           </div>
                           <div className="min-w-0 flex-1">
@@ -294,6 +299,9 @@ const ChatList = () => {
                               </p>
                             )}
                           </div>
+                          {unreadChats.has(conv._id) && (
+                            <span className="h-3 w-3 shrink-0 rounded-full bg-accent" />
+                          )}
                         </button>
                       );
                     })}

@@ -9,6 +9,7 @@ import Button from "../components/atoms/button/Button";
 import { useMatchesStore } from "../stores/matchesStore";
 import { AgeRange, PlayStyle } from "../types/match";
 import { createMatch } from "../api/matches";
+import Loader from "../components/atoms/loader/Loader";
 
 const GAME_TYPES = [
   { label: "5v5", value: 10 },
@@ -281,10 +282,12 @@ const CreateGame = () => {
             <p className="mb-3 text-center text-sm text-red-400">{error}</p>
           )}
           <Button onClick={handleCreate} disabled={!canSubmit}>
-            {loading ? "Creando..." : "Crear partido"}
+            Crear partido
           </Button>
         </div>
       </div>
+
+      {loading && <Loader size="overlay" label="Creando partido" />}
     </Layout>
   );
 };

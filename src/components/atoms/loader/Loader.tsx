@@ -4,13 +4,36 @@ import { motion } from "framer-motion";
 interface LoaderProps {
   /** Optional label shown below the animation */
   label?: string;
-  /** "screen" fills the viewport, "section" fits inside a container, "inline" is compact */
-  size?: "screen" | "section" | "inline";
+  /** "screen" fills the viewport, "section" fits inside a container, "inline" is compact, "overlay" is fullscreen fixed backdrop */
+  size?: "screen" | "section" | "inline" | "overlay";
 }
 
 const dots = [0, 1, 2, 3, 4];
 
 const Loader: React.FC<LoaderProps> = ({ label, size = "section" }) => {
+  if (size === "overlay") {
+    return (
+      <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-background/80 backdrop-blur-sm">
+        <div className="flex items-center gap-2">
+          {dots.map((i) => (
+            <motion.span
+              key={i}
+              className="h-3 w-3 rounded-full bg-primary"
+              animate={{ scale: [1, 1.6, 1], opacity: [0.35, 1, 0.35] }}
+              transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.12, ease: "easeInOut" }}
+            />
+          ))}
+        </div>
+        <div className="mt-3 h-1 w-16 rounded-full bg-primary/10 blur-sm" />
+        {label && (
+          <p className="mt-4 text-xs font-semibold uppercase tracking-widest text-on-surface-variant/60">
+            {label}
+          </p>
+        )}
+      </div>
+    );
+  }
+
   const wrapperClass =
     size === "screen"
       ? "flex min-h-[80vh] flex-col items-center justify-center"
