@@ -69,6 +69,7 @@ export interface SearchUser {
   lastName?: string;
   position?: string;
   playStyle?: string;
+  profilePhoto?: string;
 }
 
 export const searchUsers = async (query: string): Promise<SearchUser[]> => {

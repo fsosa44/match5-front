@@ -7,6 +7,7 @@ import Button from "../components/atoms/button/Button";
 import { useUserStore } from "../stores/userStore";
 import { PlayStyle } from "../types/match";
 import { FiCamera } from "react-icons/fi";
+import Loader from "../components/atoms/loader/Loader";
 
 const API_BASE = (process.env.REACT_APP_API_URL || "http://localhost:5000/api").replace("/api", "");
 
@@ -216,10 +217,12 @@ const EditProfile = () => {
         {/* Save button */}
         <div className="mt-8 w-full max-w-sm">
           <Button onClick={handleSave} disabled={loading}>
-            {loading ? "Guardando..." : "Guardar cambios"}
+            Guardar cambios
           </Button>
         </div>
       </div>
+
+      {loading && <Loader size="overlay" label="Guardando" />}
     </Layout>
   );
 };
